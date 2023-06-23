@@ -10,10 +10,10 @@ services:
     networks:
       - my-network
     environment:
-      DB_HOST: database-1.cnglh3wgxitt.eu-north-1.rds.amazonaws.com
+      DB_HOST: ""
       DB_NAME: db_test
       DB_USERNAME: admin
-      DB_PASSWORD: W04ypLBdeCFX1oz8MIPf
+      DB_PASSWORD: ""
 
   angular-ui:
     container_name: angular-ui
