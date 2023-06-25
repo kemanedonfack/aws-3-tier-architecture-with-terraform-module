@@ -16,7 +16,7 @@ resource "aws_internet_gateway" "infrastructure_igw" {
 
   tags = {
     Name = var.igw_name
-    
+
   }
   lifecycle {
     create_before_destroy = true
@@ -28,11 +28,11 @@ resource "aws_internet_gateway" "infrastructure_igw" {
 resource "aws_subnet" "public_subnet" {
   count = length(var.public_subnet_cidr_blocks)
 
-  cidr_block = var.public_subnet_cidr_blocks[count.index]
-  vpc_id     = aws_vpc.infrastructure_vpc.id
-  map_public_ip_on_launch = true //it makes this a public subnet
+  cidr_block                          = var.public_subnet_cidr_blocks[count.index]
+  vpc_id                              = aws_vpc.infrastructure_vpc.id
+  map_public_ip_on_launch             = true //it makes this a public subnet
   private_dns_hostname_type_on_launch = "ip-name"
-  availability_zone = element(var.availability_zones, count.index)
+  availability_zone                   = element(var.availability_zones, count.index)
 
   tags = {
     Name = "${var.public_subnet_name_prefix}-${count.index + 1}"
@@ -43,10 +43,10 @@ resource "aws_subnet" "public_subnet" {
 resource "aws_subnet" "private_subnet" {
   count = length(var.private_subnet_cidr_blocks)
 
-  cidr_block = var.private_subnet_cidr_blocks[count.index]
+  cidr_block                          = var.private_subnet_cidr_blocks[count.index]
   private_dns_hostname_type_on_launch = "ip-name"
-  vpc_id     = aws_vpc.infrastructure_vpc.id
-  availability_zone = element(var.availability_zones, count.index)
+  vpc_id                              = aws_vpc.infrastructure_vpc.id
+  availability_zone                   = element(var.availability_zones, count.index)
 
   tags = {
     Name = "${var.private_subnet_name_prefix}-${count.index + 1}"
@@ -56,7 +56,7 @@ resource "aws_subnet" "private_subnet" {
 # Create route table for public subnets
 resource "aws_route_table" "public_route" {
   vpc_id = aws_vpc.infrastructure_vpc.id
-  count = length(aws_subnet.public_subnet)
+  count  = length(aws_subnet.public_subnet)
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -69,7 +69,7 @@ resource "aws_route_table" "public_route" {
 
 # Create route table for private subnets
 resource "aws_route_table" "private_route" {
-  count = length(aws_subnet.private_subnet)
+  count  = length(aws_subnet.private_subnet)
   vpc_id = aws_vpc.infrastructure_vpc.id
   tags = {
     Name = "${var.private_rt_name}-${count.index + 1}"

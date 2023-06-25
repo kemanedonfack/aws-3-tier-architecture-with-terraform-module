@@ -1,11 +1,11 @@
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
 }
-variable "vpc_name"{
-    description = "vpc name tags"
+variable "vpc_name" {
+  description = "vpc name tags"
 }
-variable "igw_name"{
-    description = "internet gateway name"
+variable "igw_name" {
+  description = "internet gateway name"
 }
 
 variable "public_subnet_cidr_blocks" {
@@ -24,11 +24,11 @@ variable "availability_zones" {
 }
 
 variable "public_subnet_name_prefix" {
-    description = "public subnet name"
+  description = "public subnet name"
 }
 
 variable "private_subnet_name_prefix" {
-    description = "private subnet name"
+  description = "private subnet name"
 }
 
 

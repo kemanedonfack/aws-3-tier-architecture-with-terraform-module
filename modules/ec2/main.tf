@@ -3,9 +3,7 @@ resource "aws_launch_template" "instances_configuration" {
   image_id               = var.ami
   key_name               = var.key_name
   instance_type          = var.instance_type
-  user_data = base64encode(templatefile("userdata.tpl", { dbname=var.dbname, dbuser=var.dbuser, 
-              dbendpoint=var.dbendpoint, dbpassword=var.dbpassword}))
-  # user_data              = filebase64("install_script.sh")
+  user_data              = base64encode(templatefile("${path.module}/userdata.tpl", { dbname = var.dbname, dbuser = var.dbuser, dbendpoint = var.dbendpoint, dbpassword = var.dbpassword }))
   vpc_security_group_ids = [var.ec2_sg_id]
 
   lifecycle {
