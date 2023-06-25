@@ -3,7 +3,7 @@ resource "aws_launch_template" "instances_configuration" {
   image_id               = var.ami
   key_name               = var.key_name
   instance_type          = var.instance_type
-  user_data              = base64encode(templatefile("${path.module}/userdata.tpl", { dbname = var.dbname, dbuser = var.dbuser, dbendpoint = var.dbendpoint, dbpassword = var.dbpassword }))
+  user_data              = var.userdata == "backend_userdata.tpl" ? base64encode(templatefile("${path.module}/${var.userdata}", { dbname = var.dbname, dbuser = var.dbuser, dbendpoint = var.dbendpoint, dbpassword = var.dbpassword })) : base64encode(templatefile("${path.module}/${var.userdata}", { api_url = var.api_url }))
   vpc_security_group_ids = [var.ec2_sg_id]
 
   lifecycle {

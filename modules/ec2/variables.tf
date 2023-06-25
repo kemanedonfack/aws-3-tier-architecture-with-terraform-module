@@ -44,3 +44,9 @@ variable "desired_capacity" {
 variable "alb_target_group_arn" {
   description = "Target Group arn for form Application loadbalancer"
 }
+variable "userdata" {
+  description = "name of userdata file to use"
+}
+variable "api_url" {
+  description = "endpoint to the backend load balancer"
+}
