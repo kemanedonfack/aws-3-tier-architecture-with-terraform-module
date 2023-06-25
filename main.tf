@@ -11,7 +11,6 @@ terraform {
   }
 }
 
-
 module "network" {
   source                     = "./modules/network"
   vpc_cidr                   = "10.0.0.0/16"
@@ -33,18 +32,17 @@ module "security_group_database" {
   vpc_id              = module.network.vpc_id
 }
 
-module "security_group_ec2" {
+module "security_group_alb" {
   source              = "./modules/securitygroup"
-  security_group_name = "ec2-sg"
-  inbound_port        = [22, 80]
+  security_group_name = "alb-sg"
+  inbound_port        = [80]
   vpc_id              = module.network.vpc_id
 }
-
 
 module "database" {
   source             = "./modules/database"
   db_subnet_name     = "db-group-subnet"
-  subnet_ids         = module.network.private_subnet_ids
+  subnet_ids         = [module.network.private_subnet_ids[0], module.network.private_subnet_ids[1]]
   db_identifier      = "awstier"
   db_name            = "tutorials"
   db_user            = "root"
@@ -55,3 +53,46 @@ module "database" {
   availability_zones = ["eu-north-1a", "eu-north-1b"]
   database_sg_id     = module.security_group_database.security_group_id
 }
+
+module "alb_backend" {
+  source                = "./modules/alb"
+  alb_name              = "Backend-ALB"
+  alb_sg_id             = module.security_group_alb.security_group_id
+  alb_subnet_ids        = [module.network.public_subnet_ids[0], module.network.public_subnet_ids[1]]
+  targetgroup_name      = "Backend-TG"
+  vpc_id                = module.network.vpc_id
+  alb_internal = false
+  healthy_threshold     = 2
+  unhealthy_threshold   = 5
+  health_check_interval = 30
+  health_check_path     = "/api/tutorials"
+  health_check_timeout  = 10
+}
+
+module "security_group_ec2" {
+  source              = "./modules/securitygroup"
+  security_group_name = "ec2-sg"
+  inbound_port        = [22, 80]
+  vpc_id              = module.network.vpc_id
+}
+
+module "ec2_backend" {
+  source               = "./modules/ec2"
+  template_name        = "BackendTemplate"
+  ami                  = "ami-08766f81ab52792ce"
+  key_name             = "kemane"
+  instance_type        = "t3.micro"
+  dbpassword           = module.database.database_password
+  dbuser               = module.database.database_username
+  dbendpoint           = module.database.database_endpoint
+  dbname               = module.database.database_name
+  ec2_sg_id            = module.security_group_ec2.security_group_id
+  public_subnet_ids    = [module.network.public_subnet_ids[0], module.network.public_subnet_ids[1]]
+  asg_name             = "Backend-ASG"
+  min_size             = 2
+  max_size             = 4
+  desired_capacity     = 2
+  alb_target_group_arn = module.alb_backend.alb_target_group_arn
+
+}
+
